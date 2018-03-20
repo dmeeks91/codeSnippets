@@ -1,0 +1,499 @@
+﻿<!DOCTYPE html>
+<html ng-app="MyApp">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="white">
+
+    <title>Performance Observation</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/framework7-icons.css" />
+    <link rel="stylesheet" href="css/framework7.ios.colors.min.css">
+    <link rel="stylesheet" href="css/framework7.ios.min.css">
+    <link href="Content/offline/offline-theme-chrome.css" rel="stylesheet" />
+    <link href="Content/offline/offline-language-english.css" rel="stylesheet" />
+    <script src="Scripts/modernizr-3.4.0.js"></script>
+    <link href="Content/toastr.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/main.css" />
+
+</head>
+<body>
+    <div class="statusbar-overlay"></div>
+    <div class="panel-overlay"></div>
+    <div class="views">
+        <div class="view view-main">
+
+            <!-- Navbar -->
+            <div class="navbar no-border de-blue">
+                <div class="navbar-inner">
+                    <div class="left"></div>
+                    <div class="center sliding">Performance Observation</div>
+                    <div class="right"></div>
+                </div>
+                <div class="navbar-inner cached" data-page="obsPage" ng-controller="DetailNavController">
+                    <div class="left"></div>
+                    <div class="center sliding">Performance Observation</div>
+                    <div class="right"></div>
+                </div>
+                <div class="navbar-inner cached" data-page="jObsPage" ng-controller="DetailNavController">
+                    <div class="left sliding">
+                        <a href="obsPage" class="link back">
+                            <i class="icon icon-back navText"></i><span class="navText">Back</span>
+                        </a>
+                    </div>
+                    <div class="center sliding">Joint Observer Name</div>
+                    <div class="right"></div>
+                </div>
+                <div class="navbar-inner cached" data-page="attrPage" ng-controller="DetailNavController">
+                    <div class="left sliding">
+                        <a href="obsPage" class="link back" ng-click="onAttr2Obs(attrObject)">
+                            <i class="icon icon-back navText"></i><span class="navText">Back</span>
+                        </a>
+                    </div>
+                    <div class="center sliding">{{selectedPage}}</div>
+                    <div class="right"></div>
+                </div>
+                <div class="navbar-inner cached" data-page="ratingPage" ng-controller="DetailNavController">
+                    <div class="left sliding">
+                        <a href="attrPage" id="backFromRate" class="link back">
+                            <i class="icon icon-back navText"></i><span class="navText">Back</span>
+                        </a>
+                    </div>
+                    <div class="center sliding">{{selectedCtg}}</div>
+                    <div class="right"></div>
+                </div>
+
+            </div>
+
+            <!-- Tabbar -->
+            <div class="toolbar tabbar tabbar-labels" ng-controller="ObservationPageController">
+                <div class="toolbar-inner">
+                    <a href="#" class="tab-link disabled" id="btnNew" ng-click="newObservation()">
+                        <i class="icon f7-icons">add_round</i>
+                        <span class="tabbar-label">Create</span>
+                    </a>
+                    <a href="#" class="tab-link disabled" id="btnDelete" ng-click="deleteObservation()">
+                        <i class="icon f7-icons">trash</i>
+                        <span class="tabbar-label">Delete</span>
+                    </a>
+                    <a href="#" class="tab-link disabled" id="btnSave" ng-click="saveObservation()">
+                        <i class="icon f7-icons">download</i>
+                        <span class="tabbar-label">Save</span>
+                    </a>
+                    <a href="#" class="tab-link disabled" id="btnTransmit" ng-click="transmitObservation()">
+                        <i class="icon f7-icons">reload_round</i>
+                        <span class="tabbar-label">Transmit</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pages -->
+            <div class="pages navbar-through toolbar-through tabbar-labels-through">
+                <!-- Page 1 obsPage-->
+                <div data-page="obsPage" class="page" ng-controller="ObservationPageController">
+                    <!-- Page content-->
+                    <div class="page-content" id="page1" hidden="hidden">
+                        <form id="obsForm" class="store-data">
+                            <!--<input type="text" name="OBS_ID" hidden="hidden" />-->
+                            <div class="content-block-title">Observer</div>
+                            <div class="list-block inset">
+                                <ul>
+                                    <li>
+                                        <div class="item-content">
+                                            <div class="item-media"><i class="icon f7-icons">person</i></div>
+                                            <div class="item-inner">
+                                                <div class="item-input">
+                                                    <input type="text" name="OBSERVER_NAME" class="disabled" placeholder="Your name" value="">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <ul>
+                                        <li>
+                                            <a href="#" class="item-link smart-select" data-back-on-select="true">
+                                                <select name="OBSERVER_POS" ng-model="positions.model" >
+                                                    <option value="0">Select a Position</option>
+                                                    <option ng-repeat="option in positions.options" value="{{option}}">{{option}}</option>
+                                                </select>
+                                                <div class="item-content">
+                                                    <div class="item-inner">
+                                                        <div class="item-title">Position</div>
+                                                        <div class="item-after">Select a Position</div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="item-link smart-select" data-back-on-select="true">
+                                                <select name="OBSERVER_WKGRP" ng-model="departments.model" >
+                                                    <option value="0">Select a Department</option>
+                                                    <option ng-repeat="option in departments.options" value="{{option}}">{{option}}</option>
+                                                </select>
+                                                <div class="item-content">
+                                                    <div class="item-inner">
+                                                        <div class="item-title">Department</div>
+                                                        <div class="item-after">Select a Department</div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </ul>
+                            </div>
+                            <div id="jObsTitle" class="content-block-title" hidden="hidden">Joint Observer</div>
+                            <div id="jObsBlock" class="list-block inset" hidden="hidden">
+                                <ul>
+                                    <li>
+                                        <a href="#jObsPage" class="item-link">
+                                            <div class="item-content">
+                                                <div class="item-media"><i class="icon f7-icons">person</i></div>
+                                                <div class="item-inner">
+                                                    <div class="item-input">
+                                                        <input type="text" name="OBSERVER_NAME_2" placeholder="Select a Joint Observer" value={{jObserver.Name}}> <!---->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <ul>
+                                        <li>
+                                            <a href="#" class="item-link smart-select" data-back-on-select="true">
+                                                <select name="OBSERVER_POS_2" ng-model="jointPositions.model" >
+                                                    <option value="0">Select a Position</option>
+                                                    <option ng-repeat="option in jointPositions.options" value="{{option}}">{{option}}</option>
+                                                </select>
+                                                <div class="item-content">
+                                                    <div class="item-inner">
+                                                        <div class="item-title">Position</div>
+                                                        <div class="item-after">Select a Position</div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="item-link smart-select" data-back-on-select="true">
+                                                <select name="OBSERVER_WKGRP_2" ng-model="jointDepartments.model" >
+                                                    <option value="0">Select a Department</option>
+                                                    <option ng-repeat="option in jointDepartments.options" value="{{option}}">{{option}}</option>
+                                                </select>
+                                                <div class="item-content">
+                                                    <div class="item-inner">
+                                                        <div class="item-title">Department</div>
+                                                        <div class="item-after">Select a Department</div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </ul>
+                            </div>
+                            <div class="content-block-title">Observation Date</div>
+                            <div class="list-block inset">
+                                <ul>
+                                    <li>
+                                        <div class="item-content">
+                                            <div class="item-media"><i class="icon f7-icons">calendar</i></div>
+                                            <div class="item-inner">
+                                                <div class="item-input">
+                                                    <input type="text" name="OBS_DATE" placeholder="Select observation date" readonly id="calendar-obs-date">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="content-block-title">Observation Details</div>
+                            <div class="list-block inset">
+                                <ul>
+                                    <li>
+                                        <a href="#" class="item-link smart-select" data-searchbar="true"
+                                           data-searchbar-placeholder="Search Sites" data-back-on-select="true">
+                                            <select name="FACILITY" ng-change="onSelectSite('FACILITY')" ng-model="sites.model">
+                                                <option value="0">Select a Site</option>
+                                                <option ng-repeat="option in sites.options" value="{{option}}">{{option}}</option>
+                                            </select>
+                                            <div class="item-content">
+                                                <div class="item-inner">
+                                                    <div class="item-title">Site</div>
+                                                    <div class="item-after">Select a Site</div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="item-link smart-select" data-back-on-select="true">
+                                            <select name="OBS_TYPE" ng-change="onSelectType()" ng-model="observationTypes.model">
+                                                <option value="0">Select an Observation Type</option>
+                                                <option ng-repeat="option in observationTypes.options" value="{{option}}">{{option}}</option>
+                                            </select>
+                                            <div class="item-content">
+                                                <div class="item-inner">
+                                                    <div class="item-title">Type</div>
+                                                    <div class="item-after">Select an Observation Type</div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="item-link smart-select" data-back-on-select="true">
+                                            <select name="OBSERVED_WKGRP"  ng-model="observed_wkgrps.model">
+                                                <option value="0">Select a Department</option>
+                                                <option ng-repeat="option in observed_wkgrps.options" value="{{option}}">{{option}}</option>
+                                            </select>
+                                            <div class="item-content">
+                                                <div class="item-inner">
+                                                    <div class="item-title">Observed Department</div>
+                                                    <div class="item-after">Select a Department</div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="item-link smart-select" data-searchbar="true"
+                                           data-searchbar-placeholder="Search Locations" data-back-on-select="true">
+                                            <select name="LOCATION" ng-model="locations.model" >
+                                                <option value="0">Select a Location</option>
+                                                <option ng-repeat="option in locations.options" value="{{option}}">{{option}}</option>
+                                            </select>
+                                            <div class="item-content">
+                                                <div class="item-inner">
+                                                    <div class="item-title">Location</div>
+                                                    <div class="item-after">Select a Location</div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <div class="item-content">
+                                            <div class="item-inner">
+                                                <div class="item-title label">Duration</div>
+                                                <div class="item-inner">
+                                                    <div class="range-slider">
+                                                        <input type="range" name="DURATION" min="0" max="8" step="0.25" value="0" id="slider-obs-duration" onchange="document.getElementById('duration-label').innerText = this.value + ' hrs.'">
+                                                    </div>
+                                                </div>
+                                                <div class="item-after">
+                                                    <div class="item-after" id="duration-label">
+                                                        0 hrs.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="content-block-title">Description of Activity Observed</div>
+                            <div class="list-block inset">
+                                <ul>
+                                    <li class="align-top">
+                                        <div class="item-content">
+                                            <div class="item-media"><i class="icon f7-icons">chat</i></div>
+                                            <div class="item-inner">
+                                                <div class="item-input">
+                                                    <textarea class="resizable" name="ACTIVITY_DESC" maxlength="4000"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="content-block-title">General Observation Comments</div>
+                            <div class="list-block inset">
+                                <ul>
+                                    <li class="align-top">
+                                        <div class="item-content">
+                                            <div class="item-media"><i class="icon f7-icons">chat</i></div>
+                                            <div class="item-inner">
+                                                <div class="item-input">
+                                                    <textarea class="resizable" name="" maxlength="4000"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="content-block-title">Attributes</div>
+                            <div class="list-block inset accordion-list">
+                                <ul>
+                                    <li class="accordion-item">
+                                        <a href="#" class="item-content item-link">
+                                            <div class="item-inner">
+                                                <div class="item-title">Behavioral Types</div>
+                                            </div>
+                                        </a>
+                                        <div class="accordion-item-content">
+                                            <div class="content-block">
+                                                <div class="list-block">
+                                                    <ul>
+                                                        <li ng-repeat="behavior in behavioralTypes">
+                                                            <a href="#attrPage" class="item-link" ng-click="$parent.selectPage(behavior)">
+                                                                <div class="item-content">
+                                                                    <div class="item-inner">
+                                                                        <div class="item-title">{{behavior}}</div>
+                                                                    </div>
+                                                                </div>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <br />
+                            <div class="content-block-title"></div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Page 2 jObsSearchPage-->
+                <div data-page="jObsPage" class="page cached no-tabbar" ng-controller="JointObserverListController">
+                    <form data-search-list=".list-block-search" data-search-in=".item-title, .item-after"
+                          class="searchbar searchbar-init">
+                        <div class="searchbar-input">
+                            <input type="search" placeholder="Search for joint observer"><a href="#" class="searchbar-clear"></a>
+                        </div><a href="#" class="searchbar-cancel">Cancel</a>
+                    </form>
+                    <div class="searchbar-overlay"></div>
+                    <div class="page-content">
+                        <div class="list-block list-block-search searchbar-found">
+                            <ul>
+                                <li ng-repeat="person in users">
+                                    <a href="#obsPage" class="item-link back" ng-click="onSelectJointObserver(person)">
+                                        <div class="item-content">
+                                            <div class="item-media"><i class="icon f7-icons">person</i></div>
+                                            <div class="item-inner">
+                                                <div class="item-title">{{person.Name}}</div>
+                                                <div class="item-after">{{person.EID}}</div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 3 attrPage-->
+                <div data-page="attrPage" class="page cached no-tabbar" ng-controller="AttributePageController">
+                    <div class="page-content">
+                        <div class="content-block-title">CATEGORIES</div>
+                        <div class="list-block inset accordion-list">
+                            <ul>
+                                <li class="accordion-item" ng-repeat="category in categories">
+                                    <a href="#" class="item-link item-content" ng-click="onSelectCat(category.Index)">
+                                        <div class="item-inner">
+                                            <div class="item-title">{{category.Name}}</div>
+                                        </div>
+                                    </a>
+                                    <div class="accordion-item-content">
+                                        <div class="card {{attribute.Score}}" ng-repeat="attribute in category.Attributes">
+                                            <a class="item-link item-content" href="#ratingPage" ng-click="onSelectAttr(attribute, attribute.Index)">
+                                                <div class="card-content ">
+                                                    <div class="card-content-inner">
+                                                        {{attribute.Question}}
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 4 ratingPage-->
+                <div data-page="ratingPage" class="page cached no-tabbar no-swipeback" ng-controller="RatingPageController">
+                    <div class="page-content">
+                        <div class="content-block-title">Question #{{attribute.Question.slice(0,1)}}</div>
+                        <div class="list-block inset noBck">
+                            <ul>
+                                <li>
+                                    <p class="qBlock">{{attribute.Question.slice(2)}}</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="content-block-title">Rating</div>
+                        <div class="list-block inset noBck">
+                            <ul>
+                                <li ng-repeat="rating in ratingIndex">
+                                    <label class="label-radio">
+                                        <input type="radio" name="my-radio" ng-model="attribute.Score" value={{rating.Score}} ng-click="onRateAttr(rating)">
+                                        <div class="item-inner rateAttr {{rating.Score}}">
+                                            <div class="item-title">&nbsp;{{rating.Name}}</div>
+                                        </div>
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="content-block-title">COMMENTS</div>
+                        <div class="list-block inset noBck">
+                            <ul>
+                                <li>
+                                    <!--class="align-top"-->
+                                    <div class="item-content" id="commentsBlock">
+                                        <div class="item-media"><i class="icon f7-icons" id="commentsImage">chat</i></div>
+                                        <div class="item-inner">
+                                            <div class="item-input">
+                                                <textarea placeholder="" ng-model="attribute.model" ng-change="onAddComment(attribute.model)"
+                                                          value={{attrbute.Comment}} class="resizable" maxlength="4000"
+                                                          ng-model-options="{updateOn: 'default blur', debounce: {default: 500, blur: 0} }"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+
+                            </ul>
+                            <div class="content-block" id="needComment" hidden="hidden">
+                                <p class="invalidText">
+                                    You must enter comments for attributes given an {{thisRate.Name}} rating
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script type="text/javascript" src="Scripts/jquery-3.3.1.js"></script>
+
+    <script type="text/javascript" src="Scripts/bootstrap.js"></script>
+    <script type="text/javascript" src="Scripts/respond.js"></script>
+    <script src="Scripts/toastr.min.js"></script>
+
+    <script type="text/javascript" src="Scripts/angular.js"></script>
+    <script type="text/javascript" src="Scripts/angular-touch.js"></script>
+    <script type="text/javascript" src="Scripts/framework7.min.js"></script>
+
+    <script type="text/javascript" src="Scripts/lodash.min.js"></script>
+    <script type="text/javascript" src="Scripts/uuid.js"></script>
+    <script type="text/javascript" src="Scripts/moment.js"></script>
+
+    <script type="text/javascript" src="Scripts/offline/offline.min.js"></script>
+    <!--<script type="text/javascript" src="Scripts/offlinejs-simulate-ui/offline-simulate-ui.min.js"></script>-->
+
+    <script type="text/javascript" src="Scripts/app/config.js"></script>
+
+    <script type="text/javascript" src="Scripts/app/service/InitService.js"></script>
+    <script type="text/javascript" src="Scripts/app/service/DataService.js"></script>
+    <script type="text/javascript" src="Scripts/app/service/DataFactories.js"></script>
+    <script type="text/javascript" src="Scripts/app/service/indexedDBService.js"></script>
+
+    <script type="text/javascript" src="Scripts/app/controller/ObservationPageController.js"></script>
+    <script type="text/javascript" src="Scripts/app/controller/DetailNavController.js"></script>
+    <script type="text/javascript" src="Scripts/app/controller/JointObserverListController.js"></script>
+    <script type="text/javascript" src="Scripts/app/controller/AttributePageController.js"></script>
+    <script type="text/javascript" src="Scripts/app/controller/RatingPageController.js"></script>
+
+    <script type="text/javascript" src="Scripts/app/generalFunctions.js"></script>
+
+</body>
+</html>
